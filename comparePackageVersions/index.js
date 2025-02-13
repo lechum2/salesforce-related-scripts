@@ -52,7 +52,7 @@ function installPackage(packageName, id, orgAlias) {
     } catch (error) {
         console.log(`installation of ${packageName} failed with error:`);
         const result = JSON.parse(error.stdout.toString());
-        cosnole.log(result.message);
+        console.log(result.message);
     }
 }
 
