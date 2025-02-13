@@ -2,9 +2,11 @@
 
 const { execSync } = require( 'child_process' );
 const semver = require('semver');
+const argv = require('minimist')(process.argv.slice(2));
 
-const orgFromAlias = process.argv[2];
-const orgToAlias = process.argv[3];
+const orgFromAlias = argv._[0];
+const orgToAlias = argv._[1];
+const checkOnly = argv['check-only'];
 
 const project_path = 'C:\\Users\\x9t\\workspace\\nyk\\core';
 const packagesToSkip = ['bookme', 'NykreditAi'];
@@ -28,12 +30,25 @@ function getInstalledPackages(orgAlias) {
 }
 
 function installPackage(packageName, id, orgAlias) {
+    if (checkOnly) {
+        return
+    }
     if (packagesToSkip.includes(packageName)) {
         return
     }
-    execSync(`sf package install --package ${id} --wait 20 --target-org ${orgAlias} --security-type AdminsOnly --apex-compile package --no-prompt`, {
-        cwd: project_path
-    });
+    console.log(`installing ${packageName} to ${orgAlias}`);
+    try {
+        const install = execSync(`sf package install --package ${id} --wait 20 --target-org ${orgAlias} --security-type AdminsOnly --apex-compile package --no-prompt --json`, {
+            cwd: project_path,
+        });
+        const output = JSON.parse(install.toString());
+        console.log(output.result.Status);
+
+    } catch (error) {
+        console.log(`installation of ${packageName} failed with error:`);
+        const result = JSON.parse(error.stdout.toString());
+        cosnole.log(result.message);
+    }
 }
 
 const fromOrgPackages = getInstalledPackages(orgFromAlias);
