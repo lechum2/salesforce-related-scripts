@@ -33,7 +33,12 @@ function installPackage(packageName, id, orgAlias) {
     if (checkOnly) {
         return
     }
+    if (orgAlias.includes('.prod')) {
+        console.log('This script cannot be used to install packages to production!');
+        return
+    }
     if (packagesToSkip.includes(packageName)) {
+        console.log(`Skipping instalation of package: ${packageName}`);
         return
     }
     console.log(`installing ${packageName} to ${orgAlias}`);
@@ -50,6 +55,7 @@ function installPackage(packageName, id, orgAlias) {
         cosnole.log(result.message);
     }
 }
+
 
 const fromOrgPackages = getInstalledPackages(orgFromAlias);
 const toOrgPackages = getInstalledPackages(orgToAlias);
