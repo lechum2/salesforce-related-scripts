@@ -7,9 +7,11 @@ const argv = require('minimist')(process.argv.slice(2));
 const orgFromAlias = argv._[0];
 const orgToAlias = argv._[1];
 const checkOnly = argv['check-only'];
+const password = argv['password'];
 
 const project_path = 'C:\\Users\\x9t\\workspace\\nyk\\core';
-const packagesToSkip = ['bookme', 'NykreditAi'];
+const packagesToSkip = ['NykreditAi', 'p13n-data-kit-pack', 'CDPAdvertising', 'Salesforce Standard Data Model'];
+const packagesWithPassword = ['components', 'bookme', 'present'];
 
 function getInstalledPackages(orgAlias) {
     const orgFromPackages = execSync(`sf package installed list --target-org ${orgAlias} --json`, {
@@ -43,7 +45,11 @@ function installPackage(packageName, id, orgAlias) {
     }
     console.log(`installing ${packageName} to ${orgAlias}`);
     try {
-        const install = execSync(`sf package install --package ${id} --wait 20 --target-org ${orgAlias} --security-type AdminsOnly --apex-compile package --no-prompt --json`, {
+        var passordPart = '';
+        if (packagesWithPassword.includes(packageName)) {
+            passordPart = ` --installation-key ${password}`;
+        }
+        const install = execSync(`sf package install --package ${id} --wait 20 --target-org ${orgAlias} --security-type AdminsOnly --apex-compile package --no-prompt --json${passordPart}`, {
             cwd: project_path,
         });
         const output = JSON.parse(install.toString());
